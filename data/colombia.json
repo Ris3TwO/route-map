@@ -1,0 +1,188 @@
+[
+  {
+    "id": 1,
+    "name": "Guajira",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/guajira.svg",
+    "hasData": true
+  },
+  {
+    "id": 2,
+    "name": "Cesar",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/cesar.svg",
+    "hasData": false
+  },
+  {
+    "id": 3,
+    "name": "Magdalena",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/magdalena.svg",
+    "hasData": true
+  },
+  {
+    "id": 4,
+    "name": "Atlántico",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/atlantico.svg",
+    "hasData": true
+  },
+  {
+    "id": 5,
+    "name": "Bolívar",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/bolivar.svg",
+    "hasData": false
+  },
+  {
+    "id": 6,
+    "name": "Sucre",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/sucre.svg",
+    "hasData": false
+  },
+  {
+    "id": 7,
+    "name": "Córdoba",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/cordoba.svg",
+    "hasData": false
+  },
+  {
+    "id": 8,
+    "name": "Antioquia",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/antioquia.svg",
+    "hasData": false
+  },
+  {
+    "id": 9,
+    "name": "Norte de Santander",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/norte-de-santander.svg",
+    "hasData": false
+  },
+  {
+    "id": 10,
+    "name": "Choco",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/choco.svg",
+    "hasData": false
+  },
+  {
+    "id": 11,
+    "name": "Santander",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/santander.svg",
+    "hasData": false
+  },
+  {
+    "id": 12,
+    "name": "Boyaca",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/boyaca.svg",
+    "hasData": false
+  },
+  {
+    "id": 13,
+    "name": "Arauca",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/arauca.svg",
+    "hasData": false
+  },
+  {
+    "id": 14,
+    "name": "Caldas",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/caldas.svg",
+    "hasData": false
+  },
+  {
+    "id": 15,
+    "name": "Risaralda",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/risaralda.svg",
+    "hasData": true
+  },
+  {
+    "id": 16,
+    "name": "Valle del Cauca",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/valle-del-cauca.svg",
+    "hasData": false
+  },
+  {
+    "id": 17,
+    "name": "Quindio",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/quindio.svg",
+    "hasData": false
+  },
+  {
+    "id": 18,
+    "name": "Tolima",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/tolima.svg",
+    "hasData": true
+  },
+  {
+    "id": 19,
+    "name": "Cundinamarca",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/cundinamarca.svg",
+    "hasData": true
+  },
+  {
+    "id": 20,
+    "name": "Casanare",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/casanare.svg",
+    "hasData": false
+  },
+  {
+    "id": 21,
+    "name": "Meta",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/meta.svg",
+    "hasData": false
+  },
+  {
+    "id": 22,
+    "name": "Vichada",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/vichada.svg",
+    "hasData": false
+  },
+  {
+    "id": 23,
+    "name": "Huila",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/huila.svg",
+    "hasData": false
+  }, 
+  {
+    "id": 24,
+    "name": "Cauca",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/cauca.svg",
+    "hasData": false
+  },
+  {
+    "id": 25,
+    "name": "Nariño",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/narinho.svg",
+    "hasData": false
+  },
+  {
+    "id": 26,
+    "name": "Putumayo",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/putumayo.svg",
+    "hasData": false
+  },
+  {
+    "id": 27,
+    "name": "Caqueta",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/caqueta.svg",
+    "hasData": false
+  },
+  {
+    "id": 28,
+    "name": "Guaviare",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/guaviare.svg",
+    "hasData": false
+  },
+  {
+    "id": 29,
+    "name": "Guainía",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/guainia.svg",
+    "hasData": true
+  },
+  {
+    "id": 30,
+    "name": "Vaupés",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/vaupes.svg",
+    "hasData": false
+  },
+  {
+    "id": 31,
+    "name": "Amazonas",
+    "image": "https://cdn.oncoders.io/projects/aweima/img/amazonas.svg",
+    "hasData": false
+  }
+]

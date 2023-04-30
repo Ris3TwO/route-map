@@ -1,0 +1,17 @@
+@import "https://fonts.googleapis.com/css?family=Montserrat:400,700";
+
+.text-center {
+  text-align: center;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.countdown {
+  text-align: center;
+  margin: 2em;
+  color: #2b2b2b;
+}
