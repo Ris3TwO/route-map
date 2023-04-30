@@ -1,7 +1,7 @@
 <template>
   <div class="departments">
     <div
-      v-for="department in departmentList"
+      v-for="department in departmentWithRoutes"
       :class="`department department-${department.id} ${
         department.hasData ? 'department-available department-clickable' : ''
       } ${
@@ -28,7 +28,9 @@ module.exports = {
   data() {
     return {
       departments: [],
+      departmentsId: [],
       departmentList: [],
+      departmentWithRoutes: [],
       activeDepartment: "",
       keepData: false,
     };
@@ -56,20 +58,15 @@ module.exports = {
         });
     },
     setdepartments() {
-      const departmentList = {
-        andina: ["Cundinamarca", "Tolima"],
-        central: ["Caldas", "Risaralda", "Tolima"],
-        inirida: ["Guainía", "Cundinamarca"],
-        caribe: ["Atlántico", "Magdalena", "Guajira"],
-      };
-
       if (this.routes.length === 0) return;
 
       this.routes.forEach((route) => {
-        // console.log(route);
-        const name = route.title.rendered.split("Ruta ")[1].toLowerCase();
 
-        const departments = departmentList[name] || null;
+        this.departmentsId = [
+          ...new Set([...this.departmentsId, ...route.departments.split(", ")]),
+        ];
+        // route.departments.split(", "));
+        const departments = route.departmentNames.split(", ");
 
         if (departments) {
           departments.forEach((department) => {
@@ -79,8 +76,8 @@ module.exports = {
 
             if (hasDepartment !== -1) {
               const info = {
-                name: route.title.rendered,
-                description: route.excerpt.rendered,
+                name: route.title,
+                description: route.description,
                 link: route.link,
               };
               this.departments[hasDepartment].routes.push(info);
@@ -90,8 +87,8 @@ module.exports = {
               department,
               routes: [
                 {
-                  name: route.title.rendered,
-                  description: route.excerpt.rendered,
+                  name: route.title,
+                  description: route.description,
                   link: route.link,
                 },
               ],
@@ -99,6 +96,18 @@ module.exports = {
             this.departments.push(data);
           });
         }
+      });
+
+      this.departmentList.forEach((department) => {
+        const hasDepartment = this.departmentsId.findIndex(
+          (r) => parseInt(r, 10) === department.id
+        );
+
+        if (hasDepartment !== -1) {
+          department.hasData = true;
+          department.routes = this.departments[hasDepartment].routes;
+        }
+        this.departmentWithRoutes.push(department);
       });
     },
     getRoutes(department) {
