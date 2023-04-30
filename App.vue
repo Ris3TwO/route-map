@@ -17,7 +17,9 @@
             :routes="routes"
           ></routes>
         </div>
-        <div class="map-col-12 map-lg-col-7 map-flex map-jc-center map-ai-start">
+        <div
+          class="map-col-12 map-lg-col-7 map-flex map-jc-center map-ai-start"
+        >
           <map-colombia
             :routes="pages"
             @route-list="getRoutes"
@@ -59,27 +61,20 @@ module.exports = {
     getRoutes({ routes, department }) {
       this.activeDepartment = department;
       this.routes = routes;
-      // console.log("Listados de rutas", routes);
+      console.log("Listados de rutas", routes);
     },
     resetRoutes() {
       this.activeDepartment = "";
       this.routes = [];
     },
     getPages() {
-      let url = "/wp-json/wp/v2/pages";
+      let url = "/wp-json/route-map/v1/routes";
       fetch(url)
         .then((response) => {
           return response.json();
         })
         .then((data) => {
-          data.forEach((page) => {
-            if (
-              page.status === "publish" &&
-              page.title.rendered.includes("Ruta")
-            ) {
-              this.pages.push(page);
-            }
-          });
+          this.pages = data;
         });
     },
   },
