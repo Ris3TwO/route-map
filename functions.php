@@ -644,9 +644,12 @@ function oc_check_update()
     $plugin_slug = basename(dirname(__FILE__)) . '/' . basename(__FILE__);
 
     if (is_plugin_active($plugin_slug)) {
-        $response = wp_remote_get('https://api.github.com/repos/ocanal/route-map/releases/latest');
+        $response = wp_remote_get('https://api.github.com/repos/Ris3TwO/route-map/releases/latest');
         if (!is_wp_error($response)) {
             $body = json_decode($response['body']);
+            if ($body->message == 'Not Found') {
+                return;
+            }
             $latest_version = $body->tag_name;
             if (version_compare($plugin_version, $latest_version, '<')) {
                 add_action('admin_notices', 'oc_update_notice');
@@ -654,6 +657,30 @@ function oc_check_update()
         }
     }
 }
+
+
+function oc_update_notice()
+{
+    $plugin_data = get_plugin_data(__FILE__);
+    $plugin_version = $plugin_data['Version'];
+    $plugin_slug = basename(dirname(__FILE__)) . '/' . basename(__FILE__);
+
+    $response = wp_remote_get('https://api.github.com/repos/Ris3TwO/route-map/releases/latest');
+    if (!is_wp_error($response)) {
+        $body = json_decode($response['body']);
+
+        if ($body->message !== 'Not Found') {
+            $latest_version = $body->tag_name;
+            $download_url = $body->zipball_url;
+        }
+
+    }
+
+    echo '<div class="notice notice-warning is-dismissible">
+            <p>Hay una nueva versión de <strong>Route Map</strong> disponible. <a href="' . $download_url . '" target="_blank">Descargar versión ' . $latest_version . '</a></p>
+        </div>';
+}
+
 /**
  * [route_map] returns the Current map of experience routes.
  * @return string Current map of experience routes.
