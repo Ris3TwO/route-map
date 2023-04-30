@@ -4,11 +4,11 @@
  * Plugin Name: Route Map
  * Plugin URI: http://oncoders.io/wordpress
  * Description: Inserta un mapa de Colombía a través de un shortcode de las rutas disponibles en la web.
- * Version: 1.0.7-beta
+ * Version: 0.0.2-beta
  * Author: OnCoders
  * Author URI: https://oncoders.io/
- * Requires at least: 4.2
- * Tested up to: 6.0
+ * Requires at least: 5.2
+ * Tested up to: 6.2
  *
  * Text Domain: route-map
  * Domain path: /languages/
