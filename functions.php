@@ -66,7 +66,7 @@ add_action('admin_menu', 'oc_route_map_add_submenu_page');
 function oc_route_map_add_submenu_page()
 {
     add_submenu_page(
-        'route-map',
+        null,
         'Añadir ruta',
         'Añadir ruta',
         'manage_options',
@@ -102,7 +102,7 @@ function oc_admin_map_add()
     $route = $wpdb->prefix . 'route_map';
     $post = $wpdb->prefix . 'posts';
 
-    $pages = $wpdb->get_results("SELECT * FROM $post WHERE post_type = 'page' && post_title LIKE '%Ruta%'");
+    $pages = $wpdb->get_results("SELECT * FROM $post WHERE post_type = 'page' && post_title LIKE '%Ruta%' && post_status = 'publish'");
 
     $json = file_get_contents(__DIR__ . '/data/colombia.json');
     $departmentList = json_decode($json);
@@ -140,6 +140,8 @@ function oc_admin_map_add()
                 'departments' => $departments,
             )
         );
+
+        echo "<script>window.location = 'admin.php?page=route-map';</script>";
     }
 
     ?>
@@ -595,7 +597,7 @@ function get_routes()
     $json = file_get_contents(__DIR__ . '/data/colombia.json');
     $departmentList = json_decode($json);
 
-    $results = $wpdb->get_results("SELECT title, description, departments FROM $route, $post WHERE $route.post_id = $post.ID");
+    $results = $wpdb->get_results("SELECT $route.id, $route.title, $route.description, $route.departments, $post.id as post_id FROM $route, $post WHERE $route.post_id = $post.ID");
 
     function cmp($a, $b)
     {
@@ -626,7 +628,9 @@ function get_routes()
             }
             $result->departmentNames .= findObjectById($value, $departmentList) . ", ";
         }
+        $result->link = get_permalink($result->post_id);
     }
+
 
     return $results;
 }
