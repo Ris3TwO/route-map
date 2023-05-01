@@ -22,7 +22,7 @@ register_activation_hook(__FILE__, 'route_map_create_db');
 function route_map_create_db()
 {
     global $wpdb;
-    $version = get_option('route_map_version', '1.0.7-beta');
+    $version = get_option('route_map_version', '0.0.2-beta');
     $charset_collate = $wpdb->get_charset_collate();
     $table_name = $wpdb->prefix . 'route_map';
 
@@ -217,7 +217,7 @@ function oc_admin_map()
     global $wpdb;
     $route = $wpdb->prefix . 'route_map';
     $post = $wpdb->prefix . 'posts';
-    $version = get_option('route_map_version', '1.0.7-beta');
+    $version = get_option('route_map_version', '0.0.2-beta');
     $results = $wpdb->get_results("SELECT * FROM $route, $post WHERE $route.post_id = $post.ID");
 
     $json = file_get_contents(__DIR__ . '/data/colombia.json');
@@ -241,11 +241,7 @@ function oc_admin_map()
         return false;
     }
 
-    if (empty($results)) {
-        echo '<div class="notice notice-warning is-dismissible">
-                <p>No hay rutas registradas.</p>
-            </div>';
-    } else {
+    if (!empty($results)) {
 
         foreach ($results as $result) {
             $result->departmentNames = '';
@@ -359,7 +355,7 @@ function oc_admin_map_edit()
     global $wpdb;
     $route = $wpdb->prefix . 'route_map';
     $post = $wpdb->prefix . 'posts';
-    $version = get_option('route_map_version', '1.0.7-beta');
+    $version = get_option('route_map_version', '0.0.2-beta');
     $id = $_GET['id'];
     $results = $wpdb->get_results("SELECT * FROM $route, $post WHERE $route.post_id = $post.ID AND $route.id = $id");
 
@@ -522,6 +518,8 @@ function oc_admin_map_edit()
                 </tbody>
             </table>
             <button name="submit" id="submit" class="button button-primary" type="submit">Guardar</button>
+            <button type="button" onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map'); ?>'"
+                class="button button-secondary">Cancelar</button>
         </form>
     </div>
     <?php

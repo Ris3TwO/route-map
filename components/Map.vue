@@ -58,7 +58,10 @@ module.exports = {
         });
     },
     setdepartments() {
-      if (this.routes.length === 0) return;
+      if (this.routes.length === 0) {
+        this.departmentWithRoutes = this.departmentList;
+        return;
+      }
 
       this.routes.forEach((route) => {
 
