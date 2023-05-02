@@ -48,7 +48,7 @@ module.exports = {
   },
   methods: {
     getMapDepartments() {
-      let url = "/wp-content/plugins/route-map/data/colombia.json";
+      let url = "/wp-content/plugins/route-map/assets/data/colombia.json";
       fetch(url)
         .then((response) => {
           return response.json();

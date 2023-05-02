@@ -4,25 +4,34 @@
  * Plugin Name: Route Map
  * Plugin URI: http://oncoders.io/wordpress
  * Description: Inserta un mapa de Colombía a través de un shortcode de las rutas disponibles en la web.
- * Version: 0.0.2-beta
+ * Version: 0.0.5-beta
  * Author: OnCoders
  * Author URI: https://oncoders.io/
  * Requires at least: 5.2
  * Tested up to: 6.2
- *
+ * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: route-map
  * Domain path: /languages/
+ * Requires PHP: 7.2
  */
 
 /**
  * Register a db version
  */
 
+register_activation_hook(__FILE__, 'route_map_db_version');
+
+function route_map_db_version()
+{
+    update_option('route_map_version', '0.0.5-beta');
+}
+
 register_activation_hook(__FILE__, 'route_map_create_db');
 function route_map_create_db()
 {
     global $wpdb;
-    $version = get_option('route_map_version', '0.0.2-beta');
+    $version = get_option('route_map_version', '0.0.5-beta');
     $charset_collate = $wpdb->get_charset_collate();
     $table_name = $wpdb->prefix . 'route_map';
 
@@ -45,10 +54,33 @@ function load_custom_wp_admin_style($hook)
 {
     wp_enqueue_style(
         'custom_wp_admin_css',
-        plugins_url('/css/admin-style.css', __FILE__)
+        plugins_url('/assets/css/admin-style.css', __FILE__)
+    );
+
+    wp_enqueue_style(
+        'bootstrap_css',
+        plugins_url('/assets/css/bootstrap.min.css', __FILE__)
+    );
+
+    wp_enqueue_style(
+        'bootstrap_css',
+        plugins_url('/assets/css/bootstrap-select.min.css', __FILE__)
     );
 }
 add_action('admin_enqueue_scripts', 'load_custom_wp_admin_style');
+function load_custom_wp_admin_scripts($hook)
+{
+    wp_enqueue_script(
+        'popper_js',
+        plugins_url('/assets/js/popper.min.js', __FILE__)
+    );
+
+    wp_enqueue_script(
+        'bootstrap_js',
+        plugins_url('/assets/js/bootstrap.min.js', __FILE__)
+    );
+}
+add_action('admin_enqueue_scripts', 'load_custom_wp_admin_scripts');
 
 /**
  * Add admin menu
@@ -92,124 +124,6 @@ function oc_route_map_add_submenu_page()
 }
 
 /**
- * Add new route
- */
-function oc_admin_map_add()
-{
-
-    global $wpdb;
-
-    $route = $wpdb->prefix . 'route_map';
-    $post = $wpdb->prefix . 'posts';
-
-    $pages = $wpdb->get_results("SELECT * FROM $post WHERE post_type = 'page' && post_title LIKE '%Ruta%' && post_status = 'publish'");
-
-    $json = file_get_contents(__DIR__ . '/data/colombia.json');
-    $departmentList = json_decode($json);
-
-    function cmp($a, $b)
-    {
-        return strcmp($a->name, $b->name);
-    }
-
-    usort($departmentList, "cmp");
-
-    if (isset($_POST['submit'])) {
-        $title = trim($_POST['title']);
-        $description = trim($_POST['description']);
-        $post_id = $_POST['post_id'];
-
-        $lastElement = end($_POST['departments']);
-
-        $departments = "";
-
-        foreach ($_POST['departments'] as $value) {
-            if ($value == $lastElement) {
-                $departments .= $value;
-                break;
-            }
-            $departments .= $value . ", ";
-        }
-
-        $wpdb->insert(
-            $route,
-            array(
-                'post_id' => $post_id,
-                'title' => $title,
-                'description' => $description,
-                'departments' => $departments,
-            )
-        );
-
-        echo "<script>window.location = 'admin.php?page=route-map';</script>";
-    }
-
-    ?>
-
-    <div>
-        <h1>Añadir ruta</h1>
-        <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th scope="row">
-                            <label for="post_id">Ruta</label>
-                        </th>
-                        <td>
-                            <select name="post_id" id="post_id" required>
-                                <option value="">Seleccione una ruta</option>
-                                <?php foreach ($pages as $result) { ?>
-                                    <option value="<?php echo $result->ID; ?>">
-                                        <?php echo $result->post_title; ?>
-                                    </option>
-                                <?php } ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="title">Título</label>
-                        </th>
-                        <td>
-                            <input name="title" type="text" id="title" value="" class="regular-text" required>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="description">Descripción</label>
-                        </th>
-                        <td>
-                            <textarea name="description" id="description" cols="30" rows="3" required></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="departments">Departamentos</label>
-                        </th>
-                        <td>
-                            <select name="departments[]" id="departments" multiple required>
-                                <option value="">Seleccione los departamentos</option>
-                                <?php foreach ($departmentList as $result) { ?>
-                                    <option value="<?php echo $result->id; ?>">
-                                        <?php echo $result->name; ?>
-                                    </option>
-                                <?php } ?>
-                            </select>
-                        </td>
-                    </tr>
-
-                </tbody>
-            </table>
-            <input type="submit" name="submit" id="submit" class="button button-primary" value="Añadir ruta">
-            <button type="button" onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map'); ?>'"
-                class="button button-secondary">Cancelar</button>
-        </form>
-    </div>
-
-    <?php
-}
-
-/**
  * List routes
  */
 function oc_admin_map()
@@ -217,10 +131,10 @@ function oc_admin_map()
     global $wpdb;
     $route = $wpdb->prefix . 'route_map';
     $post = $wpdb->prefix . 'posts';
-    $version = get_option('route_map_version', '0.0.2-beta');
+    $version = get_option('route_map_version', '0.0.5-beta');
     $results = $wpdb->get_results("SELECT * FROM $route, $post WHERE $route.post_id = $post.ID");
 
-    $json = file_get_contents(__DIR__ . '/data/colombia.json');
+    $json = file_get_contents(__DIR__ . '/assets/data/colombia.json');
     $departmentList = json_decode($json);
 
     function cmp($a, $b)
@@ -268,81 +182,197 @@ function oc_admin_map()
             <?php echo '[route_map]'; ?>
         </p>
 
-        <div class="table-header">
-            <h2>Rutas</h2>
+        <div class="table-header mb-3">
+            <h5>Rutas</h5>
 
-            <button class="page-title-action"
+            <button class="btn btn-primary"
                 onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map-add'); ?>'">
                 Añadir ruta
             </button>
         </div>
 
-        <table class="wp-list-table widefat fixed striped posts">
-            <thead>
-                <tr>
-                    <th class="manage-column">ID</th>
-                    <th class="manage-column">Ruta</th>
-                    <th class="manage-column">Título</th>
-                    <th class="manage-column">Descripción</th>
-                    <th class="manage-column">Departamentos</th>
-                    <th class="manage-column">Fecha de creación</th>
-                    <th class="manage-column">Fecha de modificación</th>
-                    <th class="manage-column">Opciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($results)) { ?>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-dark">
                     <tr>
-                        <td colspan="8" class="text-center">No hay rutas registradas</td>
+                        <th class="manage-column">ID</th>
+                        <th class="manage-column">Ruta</th>
+                        <th class="manage-column">Título</th>
+                        <th class="manage-column">Descripción</th>
+                        <th class="manage-column">Departamentos</th>
+                        <th class="manage-column">Fecha de creación</th>
+                        <th class="manage-column">Fecha de modificación</th>
+                        <th class="manage-column">Opciones</th>
                     </tr>
-                <?php } else { ?>
-                    <?php
-                    foreach ($results as $result) { ?>
+                </thead>
+                <tbody>
+                    <?php if (empty($results)) { ?>
                         <tr>
-                            <td>
-                                <?php echo $result->id; ?>
-                            </td>
-                            <td>
-                                <?php echo $result->post_title; ?>
-                            </td>
-                            <td>
-                                <?php echo $result->title; ?>
-                            </td>
-                            <td>
-                                <?php echo $result->description; ?>
-                            </td>
-                            <td>
-                                <?php echo $result->departmentNames; ?>
-                            </td>
-                            <td>
-                                <?php
-                                $date = date_create($result->create_at);
-
-                                echo date_format($date, "d/m/Y");
-                                ?>
-                            </td>
-                            <td>
-                                <?php
-                                $date = date_create($result->modified_at);
-                                echo date_format($date, "d/m/Y");
-                                ?>
-                            </td>
-                            <td>
-                                <button class="button button-info"
-                                    onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map-edit&id=' . $result->id) ?>'">
-                                    Editar
-                                </button>
-                                <button class="button button-danger"
-                                    onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map-delete&id=' . $result->id) ?>'">
-                                    Eliminar
-                                </button>
-                            </td>
+                            <td colspan="8" class="text-center">No hay rutas registradas</td>
                         </tr>
-                    <?php }
-                } ?>
-            </tbody>
-        </table>
+                    <?php } else { ?>
+                        <?php
+                        foreach ($results as $result) { ?>
+                            <tr>
+                                <td>
+                                    <?php echo $result->id; ?>
+                                </td>
+                                <td>
+                                    <?php echo $result->post_title; ?>
+                                </td>
+                                <td>
+                                    <?php echo $result->title; ?>
+                                </td>
+                                <td>
+                                    <?php echo $result->description; ?>
+                                </td>
+                                <td>
+                                    <?php echo $result->departmentNames; ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $date = date_create($result->create_at);
+
+                                    echo date_format($date, "d/m/Y");
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $date = date_create($result->modified_at);
+                                    echo date_format($date, "d/m/Y");
+                                    ?>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map-edit&id=' . $result->id) ?>'">
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm"
+                                        onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map-delete&id=' . $result->id) ?>'">
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php }
+                    } ?>
+                </tbody>
+            </table>
+        </div>
     </div>
+    <?php
+}
+
+/**
+ * Add new route
+ */
+function oc_admin_map_add()
+{
+
+    global $wpdb;
+
+    $route = $wpdb->prefix . 'route_map';
+    $post = $wpdb->prefix . 'posts';
+
+    // $registeredRoutes = $wpdb->get_results("SELECT * FROM $route, $post WHERE $route.post_id = $post.ID");
+    $pages = $wpdb->get_results("SELECT * FROM $post WHERE post_type = 'page' && post_title LIKE '%Ruta%' && post_status = 'publish' && $post.ID NOT IN (SELECT post_id FROM $route)");
+
+
+    $json = file_get_contents(__DIR__ . '/assets/data/colombia.json');
+    $departmentList = json_decode($json);
+
+    function cmp($a, $b)
+    {
+        return strcmp($a->name, $b->name);
+    }
+
+    usort($departmentList, "cmp");
+
+    if (isset($_POST['submit'])) {
+        $title = trim($_POST['title']);
+        $description = trim($_POST['description']);
+        $post_id = $_POST['post_id'];
+
+        $lastElement = end($_POST['departments']);
+
+        $departments = "";
+
+        foreach ($_POST['departments'] as $value) {
+            if ($value == $lastElement) {
+                $departments .= $value;
+                break;
+            }
+            $departments .= $value . ", ";
+        }
+
+        $wpdb->insert(
+            $route,
+            array(
+                'post_id' => $post_id,
+                'title' => $title,
+                'description' => $description,
+                'departments' => $departments,
+            )
+        );
+
+        echo "<script>window.location = 'admin.php?page=route-map';</script>";
+    } ?>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Añadir ruta</h4>
+                        <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+                            <div class="form-group">
+                                <label for="post_id">Ruta</label>
+                                <select name="post_id" id="post_id" class="form-control w-100" required>
+                                    <option value="">Seleccione una ruta</option>
+                                    <?php foreach ($pages as $result) { ?>
+                                        <option value="<?php echo $result->ID; ?>">
+                                            <?php echo $result->post_title; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="title">Título</label>
+                                <input name="title" type="text" id="title" value="" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Descripción</label>
+                                <textarea name="description" id="description" cols="30" rows="10" class="form-control"
+                                    required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="departments">Departamentos</label>
+                                <select name="departments[]" id="departments" class="form-control w-100" multiple required>
+                                    <?php foreach ($departmentList as $result) { ?>
+                                        <option value="<?php echo $result->id; ?>">
+                                            <?php echo $result->name; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+
+                            <div class="d-flex justify-content-center mt-3">
+                                <input type="submit" name="submit" id="submit" class="btn btn-primary mr-2"
+                                    value="Añadir ruta">
+                                <button type="button"
+                                    onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map'); ?>'"
+                                    class="btn btn-light">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <?php
 }
 
@@ -355,11 +385,13 @@ function oc_admin_map_edit()
     global $wpdb;
     $route = $wpdb->prefix . 'route_map';
     $post = $wpdb->prefix . 'posts';
-    $version = get_option('route_map_version', '0.0.2-beta');
+    $version = get_option('route_map_version', '0.0.5-beta');
     $id = $_GET['id'];
+
+    $pages = $wpdb->get_results("SELECT * FROM $post WHERE post_type = 'page' && post_title LIKE '%Ruta%' && post_status = 'publish' && $post.id");
     $results = $wpdb->get_results("SELECT * FROM $route, $post WHERE $route.post_id = $post.ID AND $route.id = $id");
 
-    $json = file_get_contents(__DIR__ . '/data/colombia.json');
+    $json = file_get_contents(__DIR__ . '/assets/data/colombia.json');
     $departmentList = json_decode($json);
 
     function cmp($a, $b)
@@ -380,12 +412,7 @@ function oc_admin_map_edit()
         return false;
     }
 
-    if (empty($results)) {
-        echo '<div class="notice notice-warning is-dismissible">
-                <p>No hay rutas registradas.</p>
-            </div>';
-    } else {
-
+    if (!empty($results)) {
         foreach ($results as $result) {
             $result->departmentNames = '';
             $res = explode(", ", $result->departments);
@@ -437,90 +464,77 @@ function oc_admin_map_edit()
 
     ?>
     <!-- Custom style for plugin -->
-    <div class="wrap">
-        <h1>Mapa de rutas</h1>
-        <p>Version:
-            <?php echo $version; ?>
-        </p>
-        <p>Shortcode:
-            <?php echo '[route_map]'; ?>
-        </p>
+    <div class="container my-5">
+        <button class="btn btn-secondary"
+            onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map'); ?>'">
+            Volver
+        </button>
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Ruta:
+                            <?php echo $result->title; ?>
+                        </h4>
 
-        <div class="table-header">
-            <h2>Editar ruta</h2>
-        </div>
+                        <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+                            <input type="hidden" name="action" value="edit_route_map">
+                            <input type="hidden" name="id" value="<?php echo $id; ?>">
 
-        <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-            <input type="hidden" name="action" value="edit_route_map">
-            <input type="hidden" name="id" value="<?php echo $id; ?>">
-            <table class="wp-list-table widefat fixed striped posts">
-                <thead>
-                    <tr>
-                        <th class="manage-column">ID</th>
-                        <th class="manage-column">Ruta</th>
-                        <th class="manage-column">Título</th>
-                        <th class="manage-column">Descripción</th>
-                        <th class="manage-column">Departamentos</th>
-                        <th class="manage-column">Fecha de creación</th>
-                        <th class="manage-column">Fecha de modificación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($results)) { ?>
-                        <tr>
-                            <td colspan="8" class="text-center">No hay rutas registradas</td>
-                        </tr>
-                    <?php } else { ?>
-                        <?php
-                        foreach ($results as $result) { ?>
-                            <tr>
-                                <td>
-                                    <?php echo $result->id; ?>
-                                </td>
-                                <td>
-                                    <?php echo $result->post_title; ?>
-                                </td>
-                                <td>
-                                    <input type="text" name="title" value="<?php echo $result->title; ?>">
-                                </td>
-                                <td>
-                                    <input type="text" name="description" value="<?php echo $result->description; ?>">
-                                </td>
-                                <td>
-                                    <select name="departments[]" id="departments" multiple>
-                                        <?php
-                                        foreach ($departmentList as $department) {
-                                            if (in_array($department->id, explode(", ", $result->departments))) {
-                                                echo '<option value="' . $department->id . '" selected>' . $department->name . '</option>';
-                                            } else {
-                                                echo '<option value="' . $department->id . '">' . $department->name . '</option>';
-                                            }
-                                        }
-                                        ?>
+                            <div class="form-group">
+                                <label for="post_id">Ruta</label>
+                                <select name="post_id" id="post_id" class="form-control w-100" required>
+                                    <option value="">Seleccione una ruta</option>
+                                    <?php foreach ($pages as $route) { ?>
+                                        <option value="<?php echo $route->id; ?>" <?php if ($route->ID == $result->post_id) {
+                                               echo 'selected';
+                                           } ?>>
+                                            <?php echo $route->post_title; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+
+                                <div class="form-group">
+                                    <label for="title">Título</label>
+                                    <input name="title" type="text" id="title" value="<?php echo $result->title; ?>"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description">Descripción</label>
+                                    <textarea name="description" id="description" cols="30" rows="10" class="form-control"
+                                        required><?php echo $result->description; ?></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="departments">Departamentos</label>
+                                    <select name="departments[]" id="departments" class="form-control w-100" multiple
+                                        required>
+                                        <?php foreach ($departmentList as $department) { ?>
+                                            <option value="<?php echo $department->id; ?>" <?php
+                                               if (in_array($department->id, explode(", ", $result->departments))) {
+                                                   echo 'selected';
+                                               } ?>>
+                                                <?php echo $department->name; ?>
+                                            </option>
+                                        <?php } ?>
                                     </select>
-                                </td>
-                                <td>
-                                    <?php
-                                    $date = date_create($result->create_at);
+                                </div>
 
-                                    echo date_format($date, "d/m/Y");
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php
-                                    $date = date_create($result->modified_at);
-                                    echo date_format($date, "d/m/Y");
-                                    ?>
-                                </td>
-                            </tr>
-                        <?php }
-                    } ?>
-                </tbody>
-            </table>
-            <button name="submit" id="submit" class="button button-primary" type="submit">Guardar</button>
-            <button type="button" onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map'); ?>'"
-                class="button button-secondary">Cancelar</button>
-        </form>
+                                <div class="d-flex justify-content-center mt-3">
+                                    <button name="submit" id="submit" class="btn btn-primary mr-2"
+                                        type="submit">Guardar</button>
+                                    <button type="button"
+                                        onclick="window.location.href='<?php echo admin_url('admin.php?page=route-map'); ?>'"
+                                        class="btn btn-light">Cancelar</button>
+                                </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
     <?php
 }
@@ -592,7 +606,7 @@ function get_routes()
     $route = $wpdb->prefix . 'route_map';
     $post = $wpdb->prefix . 'posts';
 
-    $json = file_get_contents(__DIR__ . '/data/colombia.json');
+    $json = file_get_contents(__DIR__ . '/assets/data/colombia.json');
     $departmentList = json_decode($json);
 
     $results = $wpdb->get_results("SELECT $route.id, $route.title, $route.description, $route.departments, $post.id as post_id FROM $route, $post WHERE $route.post_id = $post.ID");
@@ -649,7 +663,7 @@ function oc_check_update()
         $response = wp_remote_get('https://api.github.com/repos/Ris3TwO/route-map/releases/latest');
         if (!is_wp_error($response)) {
             $body = json_decode($response['body']);
-            if ($body->message == 'Not Found') {
+            if ($body->message == 'Not Found' || empty($body->tag_name)) {
                 return;
             }
             $latest_version = $body->tag_name;
@@ -659,6 +673,10 @@ function oc_check_update()
         }
     }
 }
+
+/**
+ * Show update notice
+ */
 
 
 function oc_update_notice()
@@ -681,6 +699,43 @@ function oc_update_notice()
     echo '<div class="notice notice-warning is-dismissible">
             <p>Hay una nueva versión de <strong>Route Map</strong> disponible. <a href="' . $download_url . '" target="_blank">Descargar versión ' . $latest_version . '</a></p>
         </div>';
+
+    // Define el nombre del plugin y la URL de descarga
+    $plugin_name = 'route-map';
+
+    // Descarga el archivo zip del plugin desde la URL
+    $response = wp_remote_get($download_url);
+
+    // Verifica si la descarga se realizó correctamente
+    if (is_wp_error($response)) {
+        echo 'No se pudo descargar el archivo del plugin.';
+        exit;
+    }
+
+    // Obtén el contenido del archivo zip descargado
+    $plugin_zip = wp_remote_retrieve_body($response);
+
+    // Define la ruta de destino para la instalación del plugin
+    $plugins_dir = WP_PLUGIN_DIR;
+    $destination = trailingslashit($plugins_dir) . $plugin_name . '.zip';
+
+    // Escribe el contenido del archivo zip descargado en la ruta de destino
+    if (!file_put_contents($destination, $plugin_zip)) {
+        echo 'No se pudo escribir el archivo del plugin en el servidor.';
+        exit;
+    }
+
+    // Descomprime el archivo zip en el directorio de plugins
+    $unzip_result = unzip_file($destination, $plugins_dir);
+
+    // Verifica si la descompresión se realizó correctamente
+    if (is_wp_error($unzip_result)) {
+        echo 'No se pudo descomprimir el archivo del plugin.';
+        exit;
+    }
+
+    // Activa el plugin recién instalado
+    activate_plugin($plugin_name . '/' . $plugin_name . '.php');
 }
 
 /**
@@ -706,18 +761,18 @@ add_action('wp_enqueue_scripts', 'add_vuejs');
 
 function custom_styles()
 {
-    wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'css/app.css');
+    wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'assets/css/app.css');
 
 }
 add_action('wp_enqueue_scripts', 'custom_styles');
 function custom_map_styles()
 {
-    wp_enqueue_style('map-style', plugin_dir_url(__FILE__) . 'css/map.css');
+    wp_enqueue_style('map-style', plugin_dir_url(__FILE__) . 'assets/css/map.css');
 
 }
 add_action('wp_enqueue_scripts', 'custom_map_styles');
 
-wp_enqueue_script('map', plugin_dir_url(__FILE__) . 'app.js', [], '1.0', true);
+wp_enqueue_script('map', plugin_dir_url(__FILE__) . 'assets/js/app.js', [], '1.0', true);
 
 /** Always end your PHP files with this closing tag */
 ?>

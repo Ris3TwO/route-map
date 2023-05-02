@@ -43,10 +43,10 @@ module.exports = {
   },
   components: {
     "map-colombia": window.httpVueLoader(
-      "/wp-content/plugins/route-map/components/Map.vue"
+      "/wp-content/plugins/route-map/assets/js/components/Map.vue"
     ),
     routes: window.httpVueLoader(
-      "/wp-content/plugins/route-map/components/Routes.vue"
+      "/wp-content/plugins/route-map/assets/js/components/Routes.vue"
     ),
   },
   filters: {
