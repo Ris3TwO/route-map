@@ -562,8 +562,8 @@ function oc_admin_map_delete()
 
     <p class="countdown">Se le redireccionará en
         <time>
-            <strong id="seconds">5</strong> segundos
-        </time>.
+            <strong id="seconds">5</strong> segundos.
+        </time>
     </p>
 
     <script>
